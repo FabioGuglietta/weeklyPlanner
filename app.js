@@ -11,11 +11,11 @@ const days = [
 const hoursMorning = ["9", "10", "11", "12"];
 const hoursEvening = ["14", "15", "16", "17"];
 const allHours = [...hoursMorning, ...hoursEvening];
-const defaultCategories = ["PROJECTS"];
+const defaultCategories = ["Projects"];
 
 const defaultState = {
   projects: {
-    PROJECTS: [],
+    Projects: [],
   },
   schedule: {
     monday: {},
