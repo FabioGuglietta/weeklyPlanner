@@ -439,19 +439,6 @@ table {
   vertical-align: middle;
 }
 
-.editable-column-title {
-  display: inline-block;
-  min-width: 40px;
-  padding: 2px 4px;
-  border-radius: 6px;
-  cursor: text;
-}
-
-.editable-column-title:focus {
-  outline: 2px solid rgba(255, 255, 255, 0.7);
-  background: rgba(255, 255, 255, 0.18);
-}
-
 .delete-column {
   position: absolute;
   right: 6px;

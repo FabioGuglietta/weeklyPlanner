@@ -32,4 +32,4 @@ Upload `index.html`, `style.css`, `app.js`, and `README.md` to a GitHub reposito
 
 ## Default data
 
-The app starts empty by default. It contains one generic project column named `Projects`, no predefined project names, an empty weekly planner, no highlighted cells, and no out-of-office days selected.
+The app starts empty by default. It contains one generic project column named `PROJECTS`, no predefined project names, an empty weekly planner, no highlighted cells, and no out-of-office days selected.
