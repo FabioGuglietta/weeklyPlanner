@@ -1,11 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="it">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Weekly Planner</title>
-  <link rel="manifest" href="manifest.webmanifest" />
-  <meta name="theme-color" content="#2563eb" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -13,15 +11,13 @@
     <header class="topbar">
       <h1>Weekly Planner</h1>
       <div class="actions">
-        <button id="howToBtn" class="secondary">How to use it</button>
-        <button id="undoBtn" class="secondary" disabled>Undo</button>
         <button id="exportBtn">Export JSON</button>
         <label class="importBtn">
           Import JSON
           <input id="importInput" type="file" accept="application/json" />
         </label>
-        <button id="resetWeekBtn">Reset week</button>
-        <button id="resetAllBtn" class="danger">Reset all</button>
+        <button id="resetWeekBtn">Reset settimana</button>
+        <button id="resetAllBtn" class="danger">Reset tutto</button>
       </div>
     </header>
 
@@ -43,7 +39,7 @@
 
     <section class="projects-section">
       <h2>PROJECTS</h2>
-      <p class="projects-help">Click inside a project cell to type. Use the + button to add a new project column.</p>
+      <p class="projects-help">Clicca in una cella per scrivere. Usa il pulsante + per aggiungere una colonna progetto.</p>
       <table class="projects" id="projectsTable">
         <thead id="projectsHead"></thead>
         <tbody id="projectsBody"></tbody>
@@ -51,41 +47,10 @@
     </section>
   </main>
 
-  <div id="howToModal" class="modal-backdrop" hidden>
-    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="howToTitle">
-      <button id="closeHowToBtn" class="modal-close" aria-label="Close">×</button>
-      <h2 id="howToTitle">How to use it</h2>
-      <div class="modal-content">
-        <h3>Weekly planner</h3>
-        <p>Each time slot contains a dropdown menu. Select a project to assign it to that slot. The cell will show both the project column and the project name.</p>
-        <p>Use the × inside a planner cell to clear that slot.</p>
-
-        <h3>Out of office</h3>
-        <p>Check the box in the OUT OF OFFICE row to mark an entire day. The corresponding column becomes green.</p>
-
-        <h3>Projects table</h3>
-        <p>Click inside any project cell and type directly to add or edit a project. Press Enter to confirm or Esc to cancel the current edit.</p>
-        <p>Use the lightbulb button to highlight a project in yellow. Use the × button to delete a project.</p>
-        <p>Use the + button after the last column to add a new project column. Use the × next to a column name to remove that column.</p>
-
-        <h3>Data storage</h3>
-        <p>The app saves automatically in this browser using localStorage. Use Export JSON to create a backup and Import JSON to restore one.</p>
-        <p>Use Undo to revert the latest action.</p>
-      </div>
-    </div>
-  </div>
-
   <template id="slotTemplate">
     <select class="slot-select"></select>
   </template>
 
   <script src="app.js"></script>
-  <script>
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./service-worker.js");
-      });
-    }
-  </script>
 </body>
 </html>

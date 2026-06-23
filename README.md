@@ -1,35 +1,26 @@
 # Weekly Planner
 
-Static local-first Web App for weekly planning.
+Web App statica per pianificazione settimanale.
 
-## Features
+## Funzioni
 
-- Monday-Friday weekly planner.
-- Dropdown menu for each time slot, grouped by project column.
-- `OUT OF OFFICE` checkbox with automatic green column highlighting.
-- Directly editable `PROJECTS` table: click inside a cell and type.
-- Press Enter to confirm an edit; press Esc to cancel the current edit.
-- `+` button after the last project column to add a new project column.
-- `×` button next to each column name to remove that column.
-- `×` button next to each project to delete it.
-- Lightbulb button next to each project to highlight it in yellow or remove the highlight.
-- `×` button inside planner cells to quickly clear a slot.
-- Planner entries show both the source project column and the project name.
-- Automatic saving in `localStorage`.
+- Tabella settimanale lunedì-venerdì.
+- Menu a tendina per ogni slot orario.
+- Checkbox `FUORI SEDE` con colorazione automatica della colonna.
+- Tabella `PROJECTS` modificabile direttamente: clicca in una cella e scrivi.
+- Invio conferma la modifica; Esc annulla la modifica in corso.
+- Pulsante `+` accanto all'ultima colonna per aggiungere una nuova colonna progetto.
+- Pulsante `×` accanto al nome di ogni colonna per rimuoverla.
+- Pulsante `×` accanto a ogni progetto per eliminarlo.
+- Ctrl/Cmd-click su un progetto per evidenziarlo in giallo o rimuovere l'evidenziazione.
+- Salvataggio automatico in `localStorage`.
 - Export/Import JSON.
-- Undo button for recent actions.
-- Reset week and Reset all buttons.
-- `How to use it` button with built-in usage instructions.
+- Reset settimana e Reset tutto.
 
-## Local use
+## Uso locale
 
-Open `index.html` in a browser.
+Apri `index.html` nel browser.
 
-## Publishing on GitHub Pages
+## Pubblicazione su GitHub Pages
 
-Upload `index.html`, `style.css`, `app.js`, and `README.md` to a GitHub repository, then enable GitHub Pages from `Settings → Pages`.
-
-
-## Default data
-
-The app starts empty by default. It contains one generic project column named `PROJECTS`, no predefined project names, an empty weekly planner, no highlighted cells, and no out-of-office days selected.
+Carica `index.html`, `style.css`, `app.js` e `README.md` in un repository GitHub, poi abilita GitHub Pages da `Settings → Pages`.
