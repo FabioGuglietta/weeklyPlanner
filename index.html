@@ -4,11 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Weekly Planner</title>
-  <meta name="theme-color" content="#2563eb" />
-  <meta name="description" content="A local-first weekly planner." />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="icon" href="icons/icon-192.svg" type="image/svg+xml" />
-  <link rel="apple-touch-icon" href="icons/icon-192.svg" />
+  <meta name="theme-color" content="#2563eb" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -86,7 +83,7 @@
   <script>
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./service-worker.js").catch(() => {});
+        navigator.serviceWorker.register("./service-worker.js");
       });
     }
   </script>

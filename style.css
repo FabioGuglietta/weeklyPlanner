@@ -279,11 +279,8 @@ table {
 .schedule td.out-label {
   background: #fff;
   font-weight: 850;
-  white-space: normal;
-  font-size: 11px;
-  line-height: 1.12;
-  letter-spacing: 0.04em;
-  padding: 0 4px;
+  white-space: nowrap;
+  font-size: 13px;
 }
 
 .slot-select {

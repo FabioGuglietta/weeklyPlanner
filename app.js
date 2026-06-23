@@ -11,40 +11,30 @@ const days = [
 const hoursMorning = ["9", "10", "11", "12"];
 const hoursEvening = ["14", "15", "16", "17"];
 const allHours = [...hoursMorning, ...hoursEvening];
-const defaultCategories = ["INAIL", "TOV", "TEACHING", "BUROCRAZIA", "PERSONAL"];
+const defaultCategories = ["PROJECTS"];
 
 const defaultState = {
   projects: {
-    INAIL: ["Cochlea code", "Project with Lollo"],
-    TOV: ["Plasmi", "TLBFIND3D", "SmartHEART"],
-    TEACHING: ["Comp. Phys. Lectures", "Lorenzo Internship"],
-    BUROCRAZIA: [],
-    PERSONAL: ["Study Drug Delivery", "Project app", "BUSY"],
+    PROJECTS: [],
   },
   schedule: {
-    monday: { "9": "SmartHEART", "14": "Plasmi" },
-    tuesday: { "9": "Study Drug Delivery", "14": "Cochlea code" },
-    wednesday: { "9": "SmartHEART", "14": "BUSY" },
-    thursday: { "9": "Comp. Phys. Lectures", "14": "Project app" },
+    monday: {},
+    tuesday: {},
+    wednesday: {},
+    thursday: {},
     friday: {},
   },
   outOfOffice: {
-    monday: true,
+    monday: false,
     tuesday: false,
-    wednesday: true,
+    wednesday: false,
     thursday: false,
     friday: false,
   },
   projectColumns: [...defaultCategories],
-  highlightedProjects: ["Cochlea code", "Plasmi", "TLBFIND3D", "SmartHEART"],
-  highlightedProjectCells: [
-    "INAIL::Cochlea code",
-    "TOV::Plasmi",
-    "TOV::TLBFIND3D",
-    "TOV::SmartHEART",
-  ],
+  highlightedProjects: [],
+  highlightedProjectCells: [],
 };
-
 let state = loadState();
 let undoStack = [];
 const MAX_UNDO_STEPS = 50;
@@ -182,7 +172,7 @@ function renderSchedule() {
 
   const label = document.createElement("td");
   label.className = "out-label";
-  label.innerHTML = "OUT OF<br>OFFICE";
+  label.textContent = "OUT OF OFFICE";
   outRow.appendChild(label);
 
   days.forEach((day) => {
@@ -595,7 +585,7 @@ function resetWeek() {
 }
 
 function resetAll() {
-  if (!confirm("Clear all local data and restore the initial example?")) return;
+  if (!confirm("Clear all local data and restore an empty planner?")) return;
   pushUndo();
   state = clone(defaultState);
   saveState();

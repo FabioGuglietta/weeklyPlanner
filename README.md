@@ -1,6 +1,6 @@
 # Weekly Planner
 
-A local-first Web App for weekly planning.
+Static local-first Web App for weekly planning.
 
 ## Features
 
@@ -20,32 +20,16 @@ A local-first Web App for weekly planning.
 - Undo button for recent actions.
 - Reset week and Reset all buttons.
 - `How to use it` button with built-in usage instructions.
-- Progressive Web App support through `manifest.webmanifest` and `service-worker.js`.
 
 ## Local use
 
 Open `index.html` in a browser.
 
-Some PWA features, such as offline caching and installation, work only when the app is served through `http://` or `https://`, not when opened directly as a local file.
-
 ## Publishing on GitHub Pages
 
-1. Create a new GitHub repository.
-2. Upload all files and folders:
-   - `index.html`
-   - `style.css`
-   - `app.js`
-   - `manifest.webmanifest`
-   - `service-worker.js`
-   - `icons/`
-   - `README.md`
-3. Go to `Settings → Pages`.
-4. Set `Source` to `Deploy from a branch`.
-5. Select the `main` branch and `/root` folder.
-6. Save.
+Upload `index.html`, `style.css`, `app.js`, and `README.md` to a GitHub repository, then enable GitHub Pages from `Settings → Pages`.
 
-After deployment, open the GitHub Pages URL. The browser may offer an `Install app` option. The app stores data locally in the browser and can be used offline after the first successful load.
 
-## Data storage
+## Default data
 
-The app stores data in the browser using `localStorage`. Data is not synchronized across devices. Use `Export JSON` and `Import JSON` to back up or move your planner data.
+The app starts empty by default. It contains one generic project column named `PROJECTS`, no predefined project names, an empty weekly planner, no highlighted cells, and no out-of-office days selected.
