@@ -305,9 +305,31 @@ function renderProjects() {
     th.className = "project-header";
 
     const title = document.createElement("span");
-    title.className = "column-title";
+    title.className = "column-title editable-column-title";
+    title.contentEditable = "true";
+    title.spellcheck = false;
     title.textContent = category;
-    th.appendChild(title);
+    title.dataset.original = category;
+    title.title = "Edit column name";
+    
+    title.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        title.blur();
+      }
+    
+      if (event.key === "Escape") {
+        event.preventDefault();
+        title.textContent = title.dataset.original || "";
+        title.blur();
+      }
+    });
+
+title.addEventListener("blur", () => {
+  renameProjectColumn(title.dataset.original || "", title.textContent.trim());
+});
+
+th.appendChild(title);
 
     const del = document.createElement("button");
     del.className = "delete-column";
@@ -568,6 +590,58 @@ function deleteProjectColumn(category) {
       if (selectedProject && !remainingProjects.has(selectedProject)) {
         state.schedule[day.key][hour] = "";
       }
+    });
+  });
+
+  saveState();
+  render();
+}
+
+function renameProjectColumn(oldName, newName) {
+  oldName = String(oldName || "").trim();
+  newName = String(newName || "").trim().toUpperCase();
+
+  if (!oldName || !newName || oldName === newName) {
+    renderProjects();
+    return;
+  }
+
+  const categories = getCategories();
+
+  if (categories.includes(newName)) {
+    alert(`The column "${newName}" already exists.`);
+    renderProjects();
+    return;
+  }
+
+  pushUndo();
+
+  const oldProjects = state.projects[oldName] || [];
+
+  state.projectColumns = categories.map((category) =>
+    category === oldName ? newName : category
+  );
+
+  state.projects[newName] = oldProjects;
+  delete state.projects[oldName];
+
+  state.highlightedProjectCells = (state.highlightedProjectCells || []).map((item) => {
+    if (!item.startsWith(`${oldName}::`)) return item;
+    return item.replace(`${oldName}::`, `${newName}::`);
+  });
+
+  days.forEach((day) => {
+    allHours.forEach((hour) => {
+      const value = state.schedule?.[day.key]?.[hour];
+
+      oldProjects.forEach((project) => {
+        const oldValue = projectValue(oldName, project);
+        const newValue = projectValue(newName, project);
+
+        if (value === oldValue) {
+          state.schedule[day.key][hour] = newValue;
+        }
+      });
     });
   });
 
