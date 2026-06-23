@@ -11,41 +11,52 @@ const days = [
 const hoursMorning = ["9", "10", "11", "12"];
 const hoursEvening = ["14", "15", "16", "17"];
 const allHours = [...hoursMorning, ...hoursEvening];
-const defaultCategories = ["INAIL", "TOV", "TEACHING", "BUROCRAZIA", "PERSONAL"];
+const defaultCategories = ["PROJECTS"];
 
 const defaultState = {
   projects: {
-    INAIL: ["Codice Coclea", "Progetto con Lollo"],
-    TOV: ["Plasmi", "TLBFIND3D", "SmartHEART"],
-    TEACHING: ["Lezioni Fis. Comp.", "Stage Lorenzo"],
-    BUROCRAZIA: [],
-    PERSONAL: ["Studia Drug Delivery", "Applicativo progetti", "BUSY"],
+    PROJECTS: [],
   },
   schedule: {
-    monday: { "9": "SmartHEART", "14": "Plasmi" },
-    tuesday: { "9": "Studia Drug Delivery", "14": "Codice Coclea" },
-    wednesday: { "9": "SmartHEART", "14": "BUSY" },
-    thursday: { "9": "Lezioni Fis. Comp.", "14": "Applicativo progetti" },
+    monday: {},
+    tuesday: {},
+    wednesday: {},
+    thursday: {},
     friday: {},
   },
   outOfOffice: {
-    monday: true,
+    monday: false,
     tuesday: false,
-    wednesday: true,
+    wednesday: false,
     thursday: false,
     friday: false,
   },
   projectColumns: [...defaultCategories],
-  highlightedProjects: ["Codice Coclea", "Plasmi", "TLBFIND3D", "SmartHEART"],
-  highlightedProjectCells: [
-    "INAIL::Codice Coclea",
-    "TOV::Plasmi",
-    "TOV::TLBFIND3D",
-    "TOV::SmartHEART",
-  ],
+  highlightedProjects: [],
+  highlightedProjectCells: [],
 };
-
 let state = loadState();
+let undoStack = [];
+const MAX_UNDO_STEPS = 50;
+
+function pushUndo() {
+  undoStack.push(JSON.stringify(state));
+  if (undoStack.length > MAX_UNDO_STEPS) undoStack.shift();
+  updateUndoButton();
+}
+
+function undoLastAction() {
+  const previous = undoStack.pop();
+  if (!previous) return;
+  state = JSON.parse(previous);
+  saveState();
+  render();
+}
+
+function updateUndoButton() {
+  const button = document.getElementById("undoBtn");
+  if (button) button.disabled = undoStack.length === 0;
+}
 
 function clone(obj) {
   return JSON.parse(JSON.stringify(obj));
@@ -105,11 +116,39 @@ function getProjectList() {
   return [...new Set(values.filter(Boolean))];
 }
 
+function projectValue(category, project) {
+  return cellKey(category, project);
+}
+
+function getProjectEntries() {
+  return getCategories().flatMap((category) =>
+    (state.projects[category] || [])
+      .filter(Boolean)
+      .map((project) => ({ category, project, value: projectValue(category, project) }))
+  );
+}
+
+function findProjectEntry(value) {
+  if (!value) return null;
+  const entries = getProjectEntries();
+
+  const exact = entries.find((entry) => entry.value === value);
+  if (exact) return exact;
+
+  return entries.find((entry) => entry.project === value) || null;
+}
+
+function scheduleValueMatchesProject(value, category, project) {
+  if (!value) return false;
+  return value === projectValue(category, project) || value === project;
+}
+
 function render() {
   renderSchedule();
   renderCategorySelect();
   renderDeleteColumnSelect();
   renderProjects();
+  updateUndoButton();
 }
 
 function renderSchedule() {
@@ -133,7 +172,7 @@ function renderSchedule() {
 
   const label = document.createElement("td");
   label.className = "out-label";
-  label.textContent = "FUORI SEDE";
+  label.textContent = "OUT OF OFFICE";
   outRow.appendChild(label);
 
   days.forEach((day) => {
@@ -143,6 +182,7 @@ function renderSchedule() {
     checkbox.className = "out-checkbox";
     checkbox.checked = Boolean(state.outOfOffice[day.key]);
     checkbox.addEventListener("change", () => {
+      pushUndo();
       state.outOfOffice[day.key] = checkbox.checked;
       saveState();
       renderSchedule();
@@ -162,11 +202,24 @@ function makeScheduleRow(hour) {
   timeCell.textContent = hour;
   tr.appendChild(timeCell);
 
-  const projectList = getProjectList();
+  const entries = getProjectEntries();
 
   days.forEach((day) => {
     const td = document.createElement("td");
+    td.className = "planner-cell";
     if (state.outOfOffice[day.key]) td.classList.add("out-of-office");
+
+    const rawValue = state.schedule?.[day.key]?.[hour] || "";
+    const selectedEntry = findProjectEntry(rawValue);
+    const selectedValue = selectedEntry ? selectedEntry.value : "";
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "slot-wrapper";
+
+    const categoryLabel = document.createElement("div");
+    categoryLabel.className = "slot-category";
+    categoryLabel.textContent = selectedEntry ? `${selectedEntry.category}:` : "";
+    wrapper.appendChild(categoryLabel);
 
     const select = document.createElement("select");
     select.className = "slot-select";
@@ -178,23 +231,52 @@ function makeScheduleRow(hour) {
     empty.textContent = "";
     select.appendChild(empty);
 
-    projectList.forEach((project) => {
-      const option = document.createElement("option");
-      option.value = project;
-      option.textContent = project;
-      select.appendChild(option);
+    getCategories().forEach((category) => {
+      const projects = (state.projects[category] || []).filter(Boolean);
+      if (!projects.length) return;
+
+      const group = document.createElement("optgroup");
+      group.label = `${category}:`;
+
+      projects.forEach((project) => {
+        const option = document.createElement("option");
+        option.value = projectValue(category, project);
+        option.textContent = project;
+        group.appendChild(option);
+      });
+
+      select.appendChild(group);
     });
 
-    const value = state.schedule?.[day.key]?.[hour] || "";
-    select.value = projectList.includes(value) ? value : "";
+    select.value = selectedValue;
 
     select.addEventListener("change", () => {
+      pushUndo();
       if (!state.schedule[day.key]) state.schedule[day.key] = {};
       state.schedule[day.key][hour] = select.value;
       saveState();
+      renderSchedule();
     });
 
-    td.appendChild(select);
+    wrapper.appendChild(select);
+    td.appendChild(wrapper);
+
+    if (selectedEntry) {
+      const clear = document.createElement("button");
+      clear.className = "clear-slot";
+      clear.title = "Clear slot";
+      clear.textContent = "×";
+      clear.addEventListener("click", (event) => {
+        event.stopPropagation();
+        pushUndo();
+        if (!state.schedule[day.key]) state.schedule[day.key] = {};
+        state.schedule[day.key][hour] = "";
+        saveState();
+        renderSchedule();
+      });
+      td.appendChild(clear);
+    }
+
     tr.appendChild(td);
   });
 
@@ -230,10 +312,6 @@ function renderProjects() {
     title.dataset.original = category;
     title.title = "Edit column name";
 
-    title.addEventListener("click", (event) => {
-      event.stopPropagation();
-    });
-
     title.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
         event.preventDefault();
@@ -255,7 +333,7 @@ function renderProjects() {
 
     const del = document.createElement("button");
     del.className = "delete-column";
-    del.title = `Rimuovi colonna ${category}`;
+    del.title = `Remove column ${category}`;
     del.textContent = "×";
     del.addEventListener("click", (event) => {
       event.stopPropagation();
@@ -270,7 +348,7 @@ function renderProjects() {
   addTh.className = "add-column-header";
   const addButton = document.createElement("button");
   addButton.className = "add-column";
-  addButton.title = "Aggiungi colonna progetto";
+  addButton.title = "Add project column";
   addButton.textContent = "+";
   addButton.addEventListener("click", addProjectColumn);
   addTh.appendChild(addButton);
@@ -292,6 +370,19 @@ function renderProjects() {
       }
       if (!project) td.classList.add("empty-project-cell");
 
+      if (project) {
+        const highlight = document.createElement("button");
+        highlight.className = "highlight-toggle";
+        highlight.title = "Highlight project";
+        highlight.textContent = "💡";
+        highlight.addEventListener("click", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          toggleProjectHighlight(category, project);
+        });
+        td.appendChild(highlight);
+      }
+
       const editor = document.createElement("div");
       editor.className = "editable-project";
       editor.contentEditable = "true";
@@ -300,15 +391,7 @@ function renderProjects() {
       editor.dataset.index = String(i);
       editor.dataset.original = project;
       editor.textContent = project;
-      editor.title = project ? "Modifica progetto. Ctrl/Cmd-click evidenzia in giallo." : "Scrivi un nuovo progetto";
-
-      editor.addEventListener("click", (event) => {
-        if ((event.ctrlKey || event.metaKey) && project) {
-          event.preventDefault();
-          event.stopPropagation();
-          toggleProjectHighlight(category, project);
-        }
-      });
+      editor.title = project ? "Edit project" : "Type a new project";
 
       editor.addEventListener("keydown", (event) => {
         if (event.key === "Enter") {
@@ -331,7 +414,7 @@ function renderProjects() {
       if (project) {
         const del = document.createElement("button");
         del.className = "delete-project";
-        del.title = "Elimina progetto";
+        del.title = "Delete project";
         del.textContent = "×";
         del.addEventListener("click", (event) => {
           event.stopPropagation();
@@ -362,11 +445,12 @@ function editProjectCell(category, index, oldName, newName) {
   if (oldName === newName) return;
 
   if (newName && state.projects[category].some((item, i) => item === newName && i !== index)) {
-    alert(`Il progetto "${newName}" esiste già nella colonna "${category}".`);
+    alert(`The project "${newName}" already exists in the "${category}" column.`);
     renderProjects();
     return;
   }
 
+  pushUndo();
   state.projects[category][index] = newName;
   compactProjects(category);
 
@@ -394,13 +478,17 @@ function removeProjectReferences(category, project) {
     cat !== category && (state.projects[cat] || []).includes(project)
   );
 
-  if (!stillExists) {
-    days.forEach((day) => {
-      allHours.forEach((hour) => {
-        if (state.schedule?.[day.key]?.[hour] === project) state.schedule[day.key][hour] = "";
-      });
+  days.forEach((day) => {
+    allHours.forEach((hour) => {
+      const value = state.schedule?.[day.key]?.[hour];
+      if (value === projectValue(category, project)) {
+        state.schedule[day.key][hour] = "";
+      }
+      if (!stillExists && value === project) {
+        state.schedule[day.key][hour] = "";
+      }
     });
-  }
+  });
 }
 
 function renameProjectReferences(category, oldName, newName) {
@@ -412,19 +500,15 @@ function renameProjectReferences(category, oldName, newName) {
 
   days.forEach((day) => {
     allHours.forEach((hour) => {
-      if (state.schedule?.[day.key]?.[hour] === oldName) state.schedule[day.key][hour] = newName;
+      const value = state.schedule?.[day.key]?.[hour];
+      if (value === oldKey) state.schedule[day.key][hour] = newKey;
+      if (value === oldName) state.schedule[day.key][hour] = newName;
     });
   });
 }
 
 function deleteProject(category, project) {
-  const used = days.some((day) => allHours.some((hour) => state.schedule?.[day.key]?.[hour] === project));
-  const message = used
-    ? `Il progetto "${project}" è usato nella settimana. Eliminarlo comunque? Verrà rimosso dagli slot se non esiste in altre colonne.`
-    : `Eliminare "${project}"?`;
-
-  if (!confirm(message)) return;
-
+  pushUndo();
   state.projects[category] = (state.projects[category] || []).filter((item) => item !== project);
   removeProjectReferences(category, project);
 
@@ -433,6 +517,7 @@ function deleteProject(category, project) {
 }
 
 function toggleProjectHighlight(category, project) {
+  pushUndo();
   const key = cellKey(category, project);
   const highlighted = new Set(state.highlightedProjectCells || []);
 
@@ -448,7 +533,7 @@ function toggleProjectHighlight(category, project) {
 }
 
 function addProjectColumn() {
-  const raw = prompt("Nome nuova colonna progetto:");
+  const raw = prompt("New project column name:");
   if (raw === null) return;
 
   const name = raw.trim().toUpperCase();
@@ -456,10 +541,11 @@ function addProjectColumn() {
 
   const categories = getCategories();
   if (categories.includes(name)) {
-    alert(`La colonna "${name}" esiste già.`);
+    alert(`The column "${name}" already exists.`);
     return;
   }
 
+  pushUndo();
   state.projectColumns = [...categories, name];
   state.projects[name] = [];
   saveState();
@@ -476,11 +562,14 @@ function renameProjectColumn(oldName, newName) {
   }
 
   const categories = getCategories();
+
   if (categories.includes(newName)) {
-    alert(`La colonna "${newName}" esiste già.`);
+    alert(`The column "${newName}" already exists.`);
     renderProjects();
     return;
   }
+
+  pushUndo();
 
   const oldProjects = state.projects[oldName] || [];
 
@@ -496,6 +585,19 @@ function renameProjectColumn(oldName, newName) {
     return item.replace(`${oldName}::`, `${newName}::`);
   });
 
+  days.forEach((day) => {
+    allHours.forEach((hour) => {
+      const value = state.schedule?.[day.key]?.[hour];
+      oldProjects.forEach((project) => {
+        const oldValue = projectValue(oldName, project);
+        const newValue = projectValue(newName, project);
+        if (value === oldValue) {
+          state.schedule[day.key][hour] = newValue;
+        }
+      });
+    });
+  });
+
   saveState();
   render();
 }
@@ -505,17 +607,18 @@ function deleteProjectColumn(category) {
 
   if (!category) return;
   if (categories.length <= 1) {
-    alert("Deve rimanere almeno una colonna progetto.");
+    alert("At least one project column must remain.");
     return;
   }
 
   const projectsToRemove = state.projects[category] || [];
   const message = projectsToRemove.length
-    ? `Rimuovere la colonna "${category}" e i suoi ${projectsToRemove.length} progetti? Gli slot settimanali che usano progetti presenti solo in questa colonna verranno svuotati.`
-    : `Rimuovere la colonna "${category}"?`;
+    ? `Remove the "${category}" column and its ${projectsToRemove.length} projects? Weekly slots using projects that exist only in this column will be cleared.`
+    : `Remove the "${category}" column?`;
 
   if (!confirm(message)) return;
 
+  pushUndo();
   state.projectColumns = categories.filter((item) => item !== category);
   delete state.projects[category];
 
@@ -523,9 +626,13 @@ function deleteProjectColumn(category) {
     (item) => !item.startsWith(`${category}::`)
   );
 
-  const remainingProjects = new Set(
-    state.projectColumns.flatMap((column) => state.projects[column] || []).filter(Boolean)
-  );
+  const remainingProjects = new Set();
+  state.projectColumns.forEach((column) => {
+    (state.projects[column] || []).filter(Boolean).forEach((project) => {
+      remainingProjects.add(project);
+      remainingProjects.add(projectValue(column, project));
+    });
+  });
 
   days.forEach((day) => {
     allHours.forEach((hour) => {
@@ -541,7 +648,8 @@ function deleteProjectColumn(category) {
 }
 
 function resetWeek() {
-  if (!confirm("Cancellare solo la pianificazione settimanale?")) return;
+  if (!confirm("Clear the weekly planner only?")) return;
+  pushUndo();
   state.schedule = Object.fromEntries(days.map((day) => [day.key, {}]));
   state.outOfOffice = Object.fromEntries(days.map((day) => [day.key, false]));
   saveState();
@@ -549,7 +657,8 @@ function resetWeek() {
 }
 
 function resetAll() {
-  if (!confirm("Cancellare tutti i dati locali e ripristinare l'esempio iniziale?")) return;
+  if (!confirm("Clear all local data and restore an empty planner?")) return;
+  pushUndo();
   state = clone(defaultState);
   saveState();
   render();
@@ -573,6 +682,7 @@ function importJson(event) {
   reader.onload = () => {
     try {
       const imported = JSON.parse(reader.result);
+      pushUndo();
       state = {
         ...clone(defaultState),
         ...imported,
@@ -585,13 +695,33 @@ function importJson(event) {
       saveState();
       render();
     } catch {
-      alert("File JSON non valido.");
+      alert("Invalid JSON file.");
     }
   };
   reader.readAsText(file);
   event.target.value = "";
 }
 
+
+function openHowTo() {
+  const modal = document.getElementById("howToModal");
+  if (modal) modal.hidden = false;
+}
+
+function closeHowTo() {
+  const modal = document.getElementById("howToModal");
+  if (modal) modal.hidden = true;
+}
+
+document.getElementById("howToBtn").addEventListener("click", openHowTo);
+document.getElementById("closeHowToBtn").addEventListener("click", closeHowTo);
+document.getElementById("howToModal").addEventListener("click", (event) => {
+  if (event.target.id === "howToModal") closeHowTo();
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") closeHowTo();
+});
+document.getElementById("undoBtn").addEventListener("click", undoLastAction);
 document.getElementById("exportBtn").addEventListener("click", exportJson);
 document.getElementById("importInput").addEventListener("change", importJson);
 document.getElementById("resetWeekBtn").addEventListener("click", resetWeek);

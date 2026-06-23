@@ -124,6 +124,20 @@ button:active,
   transform: translateY(0);
 }
 
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+button.secondary {
+  background: #111827;
+  border-color: #111827;
+  color: #ffffff;
+}
+
 .danger {
   border-color: rgba(220, 38, 38, 0.35);
   color: var(--danger);
@@ -234,7 +248,7 @@ table {
 }
 
 .schedule td {
-  height: 52px;
+  height: 64px;
   background: rgba(255, 255, 255, 0.92);
 }
 
@@ -521,15 +535,175 @@ table {
   transform: translateY(-50%);
 }
 
+.planner-cell {
+  position: relative;
+  padding: 4px 28px 4px 8px;
+}
+
+.slot-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  min-height: 56px;
+}
+
+.slot-category {
+  min-height: 17px;
+  font-size: 13px;
+  line-height: 1.1;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.slot-wrapper .slot-select {
+  width: 100%;
+  height: 34px;
+  padding: 0 6px;
+  font-size: 17px;
+  line-height: 1.1;
+}
+
+.clear-slot {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  border: 0;
+  padding: 0;
+  border-radius: 999px;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.65);
+  font-size: 18px;
+  line-height: 1;
+  box-shadow: none;
+}
+
+.clear-slot:hover {
+  transform: translateY(-50%);
+  color: #fff;
+  background: var(--danger);
+  box-shadow: none;
+}
+
+.highlight-toggle {
+  position: absolute;
+  left: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  border: 0;
+  padding: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 13px;
+  line-height: 1;
+  box-shadow: none;
+}
+
+.highlight-toggle:hover {
+  transform: translateY(-50%);
+  background: var(--yellow);
+  color: #111827;
+  box-shadow: none;
+}
+
+.editable-project {
+  padding-left: 32px;
+}
+
+.projects td.empty-project-cell .editable-project {
+  padding-left: 8px;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+  background: rgba(15, 23, 42, 0.44);
+  backdrop-filter: blur(8px);
+}
+
+.modal-backdrop[hidden] {
+  display: none;
+}
+
+.modal-card {
+  position: relative;
+  width: min(720px, 100%);
+  max-height: min(760px, 92vh);
+  overflow: auto;
+  background: var(--card-solid);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  border-radius: 22px;
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.28);
+  padding: 8px 28px 26px;
+}
+
+.modal-card h2 {
+  padding-top: 22px;
+  padding-bottom: 12px;
+}
+
+.modal-content h3 {
+  margin: 20px 0 7px;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--header);
+}
+
+.modal-content p {
+  margin: 7px 0;
+  color: #334155;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  padding: 0;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 22px;
+  line-height: 1;
+  box-shadow: none;
+}
+
+.modal-close:hover {
+  background: var(--danger);
+  color: #fff;
+  box-shadow: none;
+}
+
 .editable-column-title {
   display: inline-block;
   min-width: 44px;
-  padding: 2px 6px;
-  border-radius: 8px;
+  max-width: calc(100% - 8px);
+  padding: 3px 6px;
+  border-radius: 7px;
   cursor: text;
 }
 
 .editable-column-title:focus {
-  outline: 2px solid rgba(255, 255, 255, 0.75);
-  background: rgba(255, 255, 255, 0.18);
+  outline: 2px solid rgba(37, 99, 235, 0.45);
+  background: rgba(255, 255, 255, 0.78);
+  white-space: normal;
 }

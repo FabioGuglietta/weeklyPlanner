@@ -1,26 +1,36 @@
 # Weekly Planner
 
-Web App statica per pianificazione settimanale.
+A local-first weekly planner Progressive Web App.
 
-## Funzioni
+## Features
 
-- Tabella settimanale lunedì-venerdì.
-- Menu a tendina per ogni slot orario.
-- Checkbox `FUORI SEDE` con colorazione automatica della colonna.
-- Tabella `PROJECTS` modificabile direttamente: clicca in una cella e scrivi.
-- Invio conferma la modifica; Esc annulla la modifica in corso.
-- Pulsante `+` accanto all'ultima colonna per aggiungere una nuova colonna progetto.
-- Pulsante `×` accanto al nome di ogni colonna per rimuoverla.
-- Pulsante `×` accanto a ogni progetto per eliminarlo.
-- Ctrl/Cmd-click su un progetto per evidenziarlo in giallo o rimuovere l'evidenziazione.
-- Salvataggio automatico in `localStorage`.
-- Export/Import JSON.
-- Reset settimana e Reset tutto.
+- Weekly planner from Monday to Friday.
+- Project table with editable project cells.
+- Editable project column names.
+- Add project columns with `+`.
+- Remove project columns with `×`.
+- Remove projects without confirmation.
+- Highlight projects with the lightbulb button.
+- Planner dropdowns grouped by project column.
+- Planner cells show both the column name and the project name.
+- Clear planner cells with `×`.
+- Out-of-office row with green column highlighting.
+- Undo button.
+- Local browser storage through `localStorage`.
+- Export/import JSON backup.
+- Installable as a PWA.
+- Offline support after first load.
 
-## Uso locale
+## GitHub Pages
 
-Apri `index.html` nel browser.
+Upload all files to the root of the repository and enable:
 
-## Pubblicazione su GitHub Pages
+```text
+Settings → Pages → Deploy from a branch → main → /root
+```
 
-Carica `index.html`, `style.css`, `app.js` e `README.md` in un repository GitHub, poi abilita GitHub Pages da `Settings → Pages`.
+Do not upload exported JSON backups if they contain private data.
+
+## Cache note
+
+This version uses cache-busting asset URLs and a network-first service worker. After deploying, use a hard refresh or uninstall/reinstall the PWA if an old installed version remains cached.

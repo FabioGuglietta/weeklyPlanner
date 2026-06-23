@@ -1,9 +1,9 @@
-const CACHE_NAME = "weekly-planner-v2";
+const CACHE_NAME = "weekly-planner-v20260623";
 const APP_FILES = [
   "./",
   "./index.html",
-  "./style.css",
-  "./app.js",
+  "./style.css?v=20260623",
+  "./app.js?v=20260623",
   "./manifest.webmanifest",
   "./icons/icon-192.svg",
   "./icons/icon-512.svg"
@@ -27,9 +27,16 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
+
   event.respondWith(
-    caches.match(event.request).then((cached) =>
-      cached || fetch(event.request).catch(() => caches.match("./index.html"))
-    )
+    fetch(event.request)
+      .then((response) => {
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+        return response;
+      })
+      .catch(() =>
+        caches.match(event.request).then((cached) => cached || caches.match("./index.html"))
+      )
   );
 });
